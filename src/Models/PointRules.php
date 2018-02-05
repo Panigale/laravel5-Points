@@ -15,6 +15,8 @@ use Panigale\Point\PointRuleRegistrar;
 
 class PointRules extends Model
 {
+    public $guarded = ['id'];
+
     public function __construct()
     {
         parent::__construct();
@@ -30,7 +32,8 @@ class PointRules extends Model
      */
     public static function create(array $attributes = [])
     {
-        if (static::getRules()->where('name', $attributes['name'])->first()) {
+        if(PointRules::where('name', $attributes['name'])->first()){
+//        if (static::getRules()->where('name', $attributes['name'])->first()) {
             throw PointRuleAlreadyExists::create($attributes['name']);
         }
 
@@ -44,7 +47,7 @@ class PointRules extends Model
      */
     protected static function getRules()
     {
-        return app(PointRuleRegistrar::class)->getPermissions();
+        return app(PointRuleRegistrar::class)->getRules();
     }
 
     /**

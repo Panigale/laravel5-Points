@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class PointIncrease extends Model
 {
+    protected $guarded = ['id'];
+
     public function __construct()
     {
         parent::__construct();
