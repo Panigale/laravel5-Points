@@ -32,7 +32,7 @@ class PointSystemServiceProvider extends ServiceProvider
      */
     private function loadMigration()
     {
-        $this->loadMigrationsFrom(__DIR__.'/database/migrations');
+        $this->loadMigrationsFrom(__DIR__.'../database/migrations');
     }
 
     /**
@@ -41,7 +41,7 @@ class PointSystemServiceProvider extends ServiceProvider
     private function addConfig()
     {
         $this->publishes([
-            __DIR__.'/config/points.php' => config_path('points.php')
+            __DIR__.'../config/points.php' => config_path('points.php')
         ] ,'config');
     }
 }
