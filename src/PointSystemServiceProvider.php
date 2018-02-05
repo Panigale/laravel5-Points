@@ -1,6 +1,6 @@
 <?php
 
-namespace Panigale;
+namespace Panigale\Point;
 
 use Illuminate\Support\ServiceProvider;
 
@@ -14,7 +14,7 @@ class PointSystemServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->addConfig();
-        $this->addMigration();
+        $this->loadMigration();
     }
 
     /**
@@ -30,11 +30,9 @@ class PointSystemServiceProvider extends ServiceProvider
     /**
      * add migration
      */
-    private function addMigration()
+    private function loadMigration()
     {
-        $this->publishes([
-            __DIR__.'/database/migrations' => database_path('migrations')
-        ], 'migrations');
+        $this->loadMigrationsFrom(__DIR__.'/database/migrations');
     }
 
     /**
