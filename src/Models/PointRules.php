@@ -32,12 +32,12 @@ class PointRules extends Model
      */
     public static function create(array $attributes = [])
     {
-        if(PointRules::where('name', $attributes['name'])->first()){
+        if(!is_null(PointRules::where('name', $attributes['name'])->first())){
 //        if (static::getRules()->where('name', $attributes['name'])->first()) {
             throw PointRuleAlreadyExists::create($attributes['name']);
         }
 
-        return parent::create($attributes);
+        return static::query()->create($attributes);
     }
 
     /**
