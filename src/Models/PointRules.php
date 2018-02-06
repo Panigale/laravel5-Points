@@ -17,9 +17,9 @@ class PointRules extends Model
 {
     public $guarded = ['id'];
 
-    public function __construct()
+    public function __construct(array $attributes = [])
     {
-        parent::__construct();
+        parent::__construct($attributes);
 
         $this->setTable(config('points.table_names.point_rules'));
     }
