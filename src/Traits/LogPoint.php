@@ -17,7 +17,7 @@ trait LogPoint
     {
         $model::create([
             'user_id'      => $this->id,
-            'before_point' => $beforePoint,
+            'before_number' => $beforePoint,
             'point_id'     => $pointId,
             'number'       => $point,
             'after_number' => $afterPoint
