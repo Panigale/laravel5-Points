@@ -8,20 +8,19 @@
 namespace Panigale\Point\Traits;
 
 
+use Panigale\Point\Models\Point;
 use Panigale\Point\Models\PointIncrease;
 
 trait AddPoint
 {
-    protected function addPointToUser(int $userId, int $pointId, $number, $beforePoint, $afterPoint)
+    protected function addPointToUser(int $ruleId, $number, $beforePoint, $afterPoint)
     {
-        $this->logPoint(new PointIncrease(), $pointId, $number, $beforePoint, $afterPoint);
+        $this->logPoint(new PointIncrease(), $ruleId, $number, $beforePoint, $afterPoint);
 
-        return PointIncrease::create([
-            'number'       => $number,
-            'point_id'     => $pointId,
-            'user_id'      => $userId,
-            'before_point' => $beforePoint,
-            'after_point'  => $afterPoint
-        ]);
+        return Point::where('user_id' ,$this->id)
+                    ->where('rule_id' ,$ruleId)
+                    ->update([
+                        'number' => $afterPoint
+                    ]);
     }
 }

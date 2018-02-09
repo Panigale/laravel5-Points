@@ -28,11 +28,9 @@ trait HasPoints
      */
     public function addPoints(array $points)
     {
-        $userId = Auth::id();
-
-        collect($points)->map(function($number ,$name) use ($userId){
+        collect($points)->map(function($number ,$name){
             $afterPoint = $this->currentPoint() + $number;
-            $this->addPointToUser($userId ,PointRules::findByName($name) ,$number ,$number ,$afterPoint);
+            $this->addPointToUser(PointRules::findByName($name)->id ,$number ,$number ,$afterPoint);
         });
 
         return $this;
@@ -65,10 +63,7 @@ trait HasPoints
     {
         $currentPoint = $this->currentPoint();
 
-        if(!Auth::check())
-            throw UnauthorizedException::forUsagePoint();
-
-        $userId = Auth::id();
+        $userId = $this->id;
         /**
          * 如果點數是以 int 型態進來，檢查點數是否足夠
          *
@@ -91,7 +86,7 @@ trait HasPoints
                         return;
 
                     $points -= $point;
-                    $this->usagePointToUser($userId ,$point->id ,$shouldDeductionPoint ,$point ,$point - $shouldDeductionPoint);
+                    $this->usagePointToUser($point->id ,$shouldDeductionPoint ,$point ,$point - $shouldDeductionPoint);
                 });
             }
         }
@@ -108,7 +103,7 @@ trait HasPoints
                 //依序取出需要扣點項目的實際數量
                 $shouldDeductionPoint = $userPoints->get($name);
 
-                $this->usagePointToUser($userId ,$shouldDeductionPoint->id ,$point ,$shouldDeductionPoint ,$shouldDeductionPoint - $point);
+                $this->usagePointToUser($shouldDeductionPoint->id ,$point ,$shouldDeductionPoint ,$shouldDeductionPoint - $point);
             });
         }
 
@@ -127,13 +122,15 @@ trait HasPoints
      */
     public function getCanUsePoints()
     {
-        $userId = Auth::id();
+        $userId = $this->id;
         $nowDataTime = Carbon::now()->toDateTimeString();
 
         return Point::with('rules')
-                    ->where('expiry_at' ,'<' ,$nowDataTime)
-                    ->where('user_id' ,$userId)
-                    ->orderBy('created_at' ,'desc')
+                    ->select('points.*' ,'point_rules.id as ruleId' ,'point_rules.name as name' ,'point_rules.expiry_at')
+                    ->join('point_rules' ,'points.rule_id' ,'=' ,'point_rules.id')
+                    ->where('point_rules.expiry_at' ,'<' ,$nowDataTime)
+                    ->where('points.user_id' ,$userId)
+                    ->orderBy('point_rules.created_at' ,'desc')
                     ->get();
     }
 
@@ -150,9 +147,9 @@ trait HasPoints
         $currentPoint = $this->currentPoint();
         /**
          * 檢查是不是有足夠的點數可以用
-         * 
+         *
          * 如果傳入值是 int，只需要比對總數是否足夠
-         * 
+         *
          * 如果傳入陣列，則需每個比對是否足夠，如果不夠，回應差多少
          */
         if(is_int($points))
