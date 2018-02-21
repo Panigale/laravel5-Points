@@ -29,8 +29,11 @@ trait HasPoints
     public function addPoints(array $points)
     {
         collect($points)->map(function($number ,$name){
-            $afterPoint = $this->currentPoint() + $number;
-            $this->addPointToUser(PointRules::findByName($name)->id ,$number ,$number ,$afterPoint);
+            $pointRule = PointRules::findByName($name);
+            $pointRuleId = $pointRule->id;
+            $currentPoint = $this->currentPoint($pointRuleId);
+            $afterPoint = $currentPoint + $number;
+            $this->addPointToUser($pointRuleId ,$number ,$currentPoint ,$afterPoint);
         });
 
         return $this;
@@ -41,16 +44,19 @@ trait HasPoints
      *
      * @return int|mixed
      */
-    public function currentPoint()
+    public function currentPoint($pointRuleId = null)
     {
-        $currentPoint = $this->getCanUsePoints()
-                            ->sum('number');
+        if(is_null($pointRuleId))
+            return $currentPoint = $this->getCanUsePoints()
+                                        ->sum('number');
 
-        if(!$currentPoint){
-            $currentPoint = 0;
-        }
+        $currentPoint = Point::where('user_id' ,$this->id)
+                            ->where('rule_id' ,$pointRuleId)->first();
 
-        return $currentPoint;
+        if(is_null($currentPoint))
+            return 0;
+
+        return $currentPoint->number;
     }
 
     /**

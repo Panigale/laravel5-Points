@@ -19,7 +19,7 @@ class CreatePointTables extends Migration
             $table->increments('id');
             $table->unsignedInteger('user_id');
             $table->unsignedInteger('rule_id');
-            $table->unsignedInteger('number');
+            $table->unsignedInteger('number')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
