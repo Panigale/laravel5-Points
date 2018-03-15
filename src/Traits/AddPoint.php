@@ -63,7 +63,7 @@ trait AddPoint
                       ->first();
 
         if(is_null($point))
-            return false;
+            return true;
 
         $this->setPoint($point);
 

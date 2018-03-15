@@ -12,8 +12,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class PointUsage extends Model
 {
+    /**
+     * @var array
+     */
     protected $guarded = ['id'];
 
+    /**
+     * PointUsage constructor.
+     * @param array $attributes
+     */
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);

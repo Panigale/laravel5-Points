@@ -14,6 +14,10 @@ class Point extends Model
 {
     protected $guarded = ['id'];
 
+    /**
+     * Point constructor.
+     * @param array $attributes
+     */
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);

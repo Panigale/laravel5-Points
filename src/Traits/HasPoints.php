@@ -50,8 +50,18 @@ trait HasPoints
             return $currentPoint = $this->getCanUsePoints()
                                         ->sum('number');
 
+        if(is_string($pointRuleId)){
+            $point = PointRules::where('name' ,$pointRuleId)->first();
+
+            if(is_null($point)){
+                throw PointRuleNotExist::create($pointRuleId);
+            }
+
+            $pointRuleId = $point->id;
+        }
+
         $currentPoint = Point::where('user_id' ,$this->id)
-                            ->where('rule_id' ,$pointRuleId)->first();
+                             ->where('rule_id' ,$pointRuleId)->first();
 
         if(is_null($currentPoint))
             return 0;
@@ -161,10 +171,7 @@ trait HasPoints
         if(is_int($points))
             return $currentPoint >= $points;
 
-        if($this->currentPoint())
-
         $currentPoint = $this->getCanUsePoints();
-
         $notEnoughPoint = collect($points)->map(function($point ,$key) use ($currentPoint){
             $pointType = $currentPoint->get($key);
 
