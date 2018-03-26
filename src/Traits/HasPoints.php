@@ -182,7 +182,7 @@ trait HasPoints
          * 如果傳入陣列，則需每個比對是否足夠，如果不夠，回應差多少
          */
         if (is_int($points))
-            return $currentPoint >= $points;
+            return $currentPoint < $points;
 
         $currentPoint = $this->getCanUsePoints();
         $points = array_shift($points);
