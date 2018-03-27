@@ -12,6 +12,7 @@ use InvalidArgumentException;
 
 class PointNotEnough extends InvalidArgumentException
 {
+
     /**
      * rules already exists exception.
      *
@@ -20,6 +21,16 @@ class PointNotEnough extends InvalidArgumentException
      */
     public static function create()
     {
-        return new static("Point is not enough to use.");
+        $message = 'Point is not enough to use.';
+
+        if(request()->wantsJson()){
+            return response()->json([
+                'code'    => 401,
+                'message' => $message,
+                'errors'  => $message
+            ]);
+        }
+
+        return new static($message);
     }
 }
