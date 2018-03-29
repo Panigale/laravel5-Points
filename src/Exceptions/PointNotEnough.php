@@ -23,14 +23,6 @@ class PointNotEnough extends InvalidArgumentException
     {
         $message = 'Point is not enough to use.';
 
-        if(request()->wantsJson()){
-            return response()->json([
-                'code'    => 401,
-                'message' => $message,
-                'errors'  => $message
-            ]);
-        }
-
         return new static($message);
     }
 }
