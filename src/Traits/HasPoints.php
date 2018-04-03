@@ -9,10 +9,13 @@ namespace Panigale\Point\Traits;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Panigale\Point\Exceptions\PointEventNotExist;
 use Panigale\Point\Exceptions\PointNotEnough;
 use Panigale\Point\Exceptions\PointRuleNotExist;
 use Panigale\Point\Exceptions\UnauthorizedException;
 use Panigale\Point\Models\Point;
+use Panigale\Point\Models\PointEvent;
+use Panigale\Point\Models\PointIncrease;
 use Panigale\Point\Models\PointRules;
 use Panigale\Point\Models\PointUsage;
 
@@ -26,8 +29,11 @@ trait HasPoints
      * @param array $points
      * @return $this
      */
-    public function addPoints(array $points)
+    public function addPoints(array $points ,$title ,$body)
     {
+        $this->increaseTitle = $title;
+        $this->increaseBody = $body;
+
         collect($points)->map(function ($number, $name) {
             $pointRule = PointRules::findByName($name);
             $pointRuleId = $pointRule->id;
@@ -73,7 +79,7 @@ trait HasPoints
      * 扣除點數，可以單純的使用 int，或是傳入 array 對每個點數進行扣點
      *
      * @param array ...$points
-     * @return $this
+     * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection|HasPoints[]|$this
      */
     public function usagePoint(...$points)
     {
@@ -119,7 +125,7 @@ trait HasPoints
          */
         $points = array_shift($points);
 
-        if ($this->notEnoughToUsePoint($points)) {
+        if ($this->notEnoughPointToUse($points)) {
             throw PointNotEnough::create();
         }
 
@@ -171,7 +177,7 @@ trait HasPoints
      * @param array ...$points
      * @return bool
      */
-    public function notEnoughToUsePoint(...$points)
+    public function notEnoughPointToUse(...$points)
     {
         $currentPoint = $this->currentPoint();
         /**
@@ -214,5 +220,18 @@ trait HasPoints
     protected function getCurrentPointFromArr(array $points)
     {
         return collect($points)->flatten()->sum();
+    }
+
+    public function because($title ,$body)
+    {
+        $event = PointEvent::where('name' ,$title)->first();
+
+        if(is_null($event))
+            throw new PointEventNotExist();
+
+        $this->setEvent($event);
+        $this->setBody($body);
+
+        return $this;
     }
 }

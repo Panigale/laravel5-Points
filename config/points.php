@@ -26,6 +26,11 @@ return [
         /**
          * users points increases table
          */
-        'point_increases' => 'point_increases'
+        'point_increases' => 'point_increases',
+
+        /**
+         * point event
+         */
+        'point_events' => 'point_events'
     ]
 ];

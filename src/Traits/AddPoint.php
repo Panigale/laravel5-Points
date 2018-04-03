@@ -28,6 +28,16 @@ trait AddPoint
     protected $ruleId;
 
     /**
+     * @var string
+     */
+    protected $increaseTitle;
+
+    /**
+     * @var string
+     */
+    protected $increaseBody;
+
+    /**
      * update user point
      *
      * @param int $ruleId

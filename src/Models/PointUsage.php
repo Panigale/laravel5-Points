@@ -27,4 +27,14 @@ class PointUsage extends Model
 
         $this->setTable(config('points.table_names.point_usages'));
     }
+
+    /**
+     * 取得這個點數增加的事件內容
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
+    public function event()
+    {
+        return $this->morphMany(PointEvent::class ,'eventable');
+    }
 }
