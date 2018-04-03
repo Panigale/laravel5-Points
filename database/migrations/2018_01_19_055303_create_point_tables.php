@@ -51,19 +51,7 @@ class CreatePointTables extends Migration
             $table->timestamps();
         });
 
-        Schema::create($tableName['point_events'] ,function(Blueprint $table){
-            $table->increments('id');
-            $table->text('name');
-            $table->timestamps();
-        });
 
-        Schema::create($tableName['point_event_ables'] ,function(Blueprint $table){
-            $table->increments('id');
-            $table->unsignedInteger('point_increase_id');
-            $table->unsignedInteger('point_event_type_id');
-            $table->text('body');
-            $table->timestamps();
-        });
     }
 
     /**
