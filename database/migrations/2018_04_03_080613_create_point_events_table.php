@@ -15,19 +15,32 @@ class CreatePointEventsTable extends Migration
     {
         $tableName = config('points.table_names');
 
-
-        Schema::create($tableName['point_events'] ,function(Blueprint $table){
+        Schema::create($tableName['point_event_type'] ,function(Blueprint $table){
             $table->increments('id');
             $table->text('name');
+            $table->boolean('is_increase')->nullable();
+            $table->boolean('is_deduction')->nullable();
             $table->timestamps();
         });
 
-        Schema::create($tableName['point_event_ables'] ,function(Blueprint $table){
-            $table->increments('id');
-            $table->unsignedInteger('point_increase_id');
-            $table->unsignedInteger('point_event_type_id');
-            $table->text('body');
+        Schema::create($tableName['point_events'] ,function (Blueprint $table){
+            $table->bigIncrements('id');
+            $table->unsignedInteger('event_type_id')->index();
+            $table->string('body' ,50);
+            $table->unsignedInteger('user_id')->index();
+            $table->morphs('pointable');
             $table->timestamps();
+            $table->softDeletes();
+        });
+
+        Schema::create($tableName['point_activities'] ,function(Blueprint $table){
+            $table->bigIncrements('id');
+            $table->unsignedInteger('point_event_id')->index();
+            $table->unsignedInteger('point_id');
+            $table->integer('number');
+            $table->integer('before_point');
+            $table->integer('after_point');
+            $table->softDeletes();
         });
     }
 
@@ -38,10 +51,8 @@ class CreatePointEventsTable extends Migration
      */
     public function down()
     {
-        $tableName = config('points.table_names');
+        Schema::dropIfExists('point_events');
 
-        Schema::dropIfExists($tableName['point_events']);
-
-        Schema::dropIfExists($tableName['point_event_ables']);
+        Schema::dropIfExists('point_event_able');
     }
 }

@@ -8,20 +8,15 @@
 namespace Panigale\Point\Traits;
 
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
-use Panigale\Point\Exceptions\PointEventNotExist;
+use Illuminate\Database\Eloquent\Model;
 use Panigale\Point\Exceptions\PointNotEnough;
 use Panigale\Point\Exceptions\PointRuleNotExist;
-use Panigale\Point\Exceptions\UnauthorizedException;
 use Panigale\Point\Models\Point;
-use Panigale\Point\Models\PointEvent;
-use Panigale\Point\Models\PointIncrease;
 use Panigale\Point\Models\PointRules;
-use Panigale\Point\Models\PointUsage;
 
 trait HasPoints
 {
-    use LogPoint, UsagePoint, AddPoint;
+    use LogPoint, GetPointEvent;
 
     /**
      * 增加點數
@@ -29,10 +24,9 @@ trait HasPoints
      * @param array $points
      * @return $this
      */
-    public function addPoints(array $points ,$title ,$body)
+    public function addPoints(Model $model ,string $because ,$body ,array $points)
     {
-        $this->increaseTitle = $title;
-        $this->increaseBody = $body;
+        $this->createEvent($model ,$because ,$body);
 
         collect($points)->map(function ($number, $name) {
             $pointRule = PointRules::findByName($name);
@@ -81,7 +75,7 @@ trait HasPoints
      * @param array ...$points
      * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection|HasPoints[]|$this
      */
-    public function usagePoint(...$points)
+    public function usagePoint(Model $model ,$because ,$body ,...$points)
     {
         $currentPoint = $this->currentPoint();
 
@@ -99,9 +93,10 @@ trait HasPoints
             if ($points > $currentPoint) {
                 throw PointNotEnough::create();
             } else {
-                $logModel = new PointUsage();
 
-                return $this->getCanUsePoints()->map(function ($point) use ($points, $logModel, $userId) {
+                $this->createEvent($model ,$because ,$body ,false);
+
+                return $this->getCanUsePoints()->map(function ($point) use ($points) {
                     //如果要扣除的總點數大於這個點數項目，只扣除這個點數總額
                     $shouldDeductionPoint = $points;
                     $numberOfPoint = $point->number;
@@ -129,6 +124,8 @@ trait HasPoints
             throw PointNotEnough::create();
         }
 
+        $this->createEvent($model ,$because ,$body ,false);
+
         $userPoints = $this->getCanUsePoints();
 
         // map 需要扣點的項目
@@ -142,11 +139,6 @@ trait HasPoints
         });
 
         return $this;
-    }
-
-    public function allPoints()
-    {
-        return Point::all();
     }
 
     /**
@@ -220,18 +212,5 @@ trait HasPoints
     protected function getCurrentPointFromArr(array $points)
     {
         return collect($points)->flatten()->sum();
-    }
-
-    public function because($title ,$body)
-    {
-        $event = PointEvent::where('name' ,$title)->first();
-
-        if(is_null($event))
-            throw new PointEventNotExist();
-
-        $this->setEvent($event);
-        $this->setBody($body);
-
-        return $this;
     }
 }

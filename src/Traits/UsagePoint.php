@@ -15,7 +15,7 @@ trait UsagePoint
 {
     protected function usagePointToUser(int $pointId, $number, $beforePoint, $afterPoint)
     {
-        $this->logPoint(new PointUsage(),$pointId , $number, $beforePoint, $afterPoint);
+        $this->logPoint($pointId , $number, $beforePoint, $afterPoint);
 
         return Point::find($pointId)
                     ->update([

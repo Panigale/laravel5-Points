@@ -9,51 +9,84 @@ namespace Panigale\Point\Traits;
 
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
-use Panigale\Point\Models\PointIncrease;
+use Panigale\Point\Exceptions\PointEventNotExist;
+use Panigale\Point\Models\PointActivity;
 use Panigale\Point\Models\PointEvent;
+use Panigale\Point\Models\PointEventType;
 
 trait LogPoint
 {
+    use AddPoint,UsagePoint;
+
     /**
      * @var PointEvent
      */
     protected $event;
 
-    protected $increaseBody;
 
-    public function logPoint(Model $model, int $pointId, $point, $beforePoint, $afterPoint)
+    /**
+     * @param $event
+     * @param int $pointId
+     * @param $point
+     * @param $beforePoint
+     * @param $afterPoint
+     * @return mixed
+     */
+    public function logPoint(int $pointId, $point, $beforePoint, $afterPoint)
     {
-        $log = $model::create([
-            'user_id'      => $this->id,
-            'before_number' => $beforePoint,
-            'point_id'     => $pointId,
-            'number'       => $point,
-            'after_number' => $afterPoint
+        return PointActivity::create([
+            'user_id'        => $this->id,
+            'before_point'   => $beforePoint,
+            'point_event_id' => $this->event->id,
+            'point_id'       => $pointId,
+            'number'         => $point,
+            'after_point'    => $afterPoint,
+        ]);
+    }
+
+    /**
+     * 建立事件
+     *
+     * @param Model $model
+     * @param $event
+     * @param $body
+     * @param bool $isAdd
+     * @return $this
+     */
+    public function createEvent(Model $model,$event ,$body ,$isAdd = true)
+    {
+        $eventType = $this->getEventType($event ,$isAdd);
+
+        $this->event = $model->pointEvent->save([
+            'event_type_id' => $eventType->id,
+            'body' => $body,
+            'user_id' => $this->id,
         ]);
 
-        $this->event->save($log);
-    }
-
-    /**
-     * @param PointIncrease $increase
-     * @return $this
-     */
-    protected function setEvent(PointEvent $event)
-    {
-        $this->event = $event;
-
         return $this;
     }
 
     /**
-     * @param string $body
-     * @return $this
+     * 取得點數事件的 id
+     *
+     * @param $event
+     * @param $isAdd
+     * @return mixed
      */
-    protected function setBody(string $body)
+    protected function getEventType($event ,$isAdd)
     {
-        $this->increaseBody = $body;
+        $eventQuery = PointEventType::where('name' ,$event);
 
-        return $this;
+        if($isAdd)
+            $eventQuery->where('is_increase' ,true);
+        else
+            $eventQuery->where('is_deduction' ,true);
+
+        $event = $eventQuery->first();
+
+        if(is_null($event))
+            throw PointEventNotExist::create($event);
+
+        return $event;
     }
 }

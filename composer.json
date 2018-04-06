@@ -22,5 +22,8 @@
         "psr-4": {
             "Panigale\\Point\\Tests\\": "tests/"
         }
+    },
+    "scripts": {
+        "test": "phpunit"
     }
 }

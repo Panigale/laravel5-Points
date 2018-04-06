@@ -9,9 +9,12 @@ namespace Panigale\Point\Models;
 
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PointEvent extends Model
 {
+    use SoftDeletes;
+
     protected $guarded = ['id'];
 
     public function __construct(array $attributes = [])
@@ -22,22 +25,22 @@ class PointEvent extends Model
     }
 
     /**
-     * 取得所有擁有點數事件的模型
+     * 這個事件所產生的點數活動
      *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function increases()
+    public function activities()
     {
-        return $this->morphedByMany(PointIncrease::class ,'point_event_able');
+        return $this->hasMany(PointActivity::class ,'point_event_id');
     }
 
     /**
-     * 取得所有擁有點數事件的模型
+     * 關聯的事件 model
      *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */
-    public function usages()
+    public function pointable()
     {
-        return $this->morphedByMany(PointUsage::class ,'point_event_able');
+        return $this->morphTo();
     }
 }

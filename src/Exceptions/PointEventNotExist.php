@@ -18,9 +18,9 @@ class PointEventNotExist extends InvalidArgumentException
      * @param string $roleName
      * @return static
      */
-    public static function create()
+    public static function create(string $eventName)
     {
-        $message = 'Point event does not isset.';
+        $message = "Point event {$eventName} does not isset.";
 
         return new static($message);
     }

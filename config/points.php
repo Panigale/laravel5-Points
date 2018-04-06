@@ -19,14 +19,9 @@ return [
         'points'        => 'points',
 
         /**
-         * users points usages table
+         * point activities.
          */
-        'point_usages' => 'point_usages',
-
-        /**
-         * users points increases table
-         */
-        'point_increases' => 'point_increases',
+        'point_activities' => 'point_activities',
 
         /**
          * point event

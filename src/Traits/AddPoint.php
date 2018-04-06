@@ -9,7 +9,7 @@ namespace Panigale\Point\Traits;
 
 
 use Panigale\Point\Models\Point;
-use Panigale\Point\Models\PointIncrease;
+use Panigale\Point\Models\PointActivity;
 
 trait AddPoint
 {
@@ -49,7 +49,7 @@ trait AddPoint
     protected function addPointToUser(int $ruleId, $number, $beforePoint, $afterPoint)
     {
         $this->ruleId = $ruleId;
-        $this->logPoint(new PointIncrease(), $ruleId, $number, $beforePoint, $afterPoint);
+        $this->logPoint($ruleId, $number, $beforePoint, $afterPoint);
 
         if($this->pointNotIsset())
             $this->createPointToUser();

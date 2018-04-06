@@ -1,6 +1,5 @@
 <?php
-
-use Panigale\Tests\TestCase;
+namespace Panigale\Point\Tests;
 
 /**
  * Author: Panigale
@@ -10,18 +9,6 @@ use Panigale\Tests\TestCase;
 
 class HasPointsTest extends TestCase
 {
-    /**
-     * @test
-     */
-    public function it_should_add_points(){
-        //arrange
-        $this->testUser->addPoints(['一般點數' => 200]);
-
-        //action
-
-        //assert
-    }
-
     /**
      * @test
      */

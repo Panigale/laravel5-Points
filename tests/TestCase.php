@@ -1,6 +1,6 @@
 <?php
 
-namespace Panigale\Tests;
+namespace Panigale\Point\Tests;
 
 use App\User;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;

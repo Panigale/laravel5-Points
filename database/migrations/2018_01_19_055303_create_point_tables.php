@@ -17,8 +17,8 @@ class CreatePointTables extends Migration
 
         Schema::create($tableName['points'], function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('user_id');
-            $table->unsignedInteger('rule_id');
+            $table->unsignedInteger('user_id')->index();
+            $table->unsignedInteger('rule_id')->index();
             $table->unsignedInteger('number')->nullable();
             $table->softDeletes();
             $table->timestamps();
