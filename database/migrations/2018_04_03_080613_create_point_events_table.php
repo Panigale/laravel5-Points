@@ -15,7 +15,7 @@ class CreatePointEventsTable extends Migration
     {
         $tableName = config('points.table_names');
 
-        Schema::create($tableName['point_event_type'] ,function(Blueprint $table){
+        Schema::create('point_event_type' ,function(Blueprint $table){
             $table->increments('id');
             $table->text('name');
             $table->boolean('is_increase')->nullable();
@@ -23,9 +23,9 @@ class CreatePointEventsTable extends Migration
             $table->timestamps();
         });
 
-        Schema::create($tableName['point_events'] ,function (Blueprint $table){
+        Schema::create('point_events' ,function (Blueprint $table){
             $table->bigIncrements('id');
-            $table->unsignedInteger('event_type_id')->index();
+            $table->unsignedInteger('point_event_type_id')->index();
             $table->string('body' ,50);
             $table->unsignedInteger('user_id')->index();
             $table->morphs('pointable');
@@ -33,13 +33,14 @@ class CreatePointEventsTable extends Migration
             $table->softDeletes();
         });
 
-        Schema::create($tableName['point_activities'] ,function(Blueprint $table){
+        Schema::create('point_activities' ,function(Blueprint $table){
             $table->bigIncrements('id');
             $table->unsignedInteger('point_event_id')->index();
-            $table->unsignedInteger('point_id');
+            $table->unsignedInteger('point_id')->index();
             $table->integer('number');
             $table->integer('before_point');
             $table->integer('after_point');
+            $table->timestamps();
             $table->softDeletes();
         });
     }

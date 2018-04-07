@@ -46,9 +46,9 @@ trait HasPoints
      */
     public function currentPoint($pointRuleId = null)
     {
-        if (is_null($pointRuleId))
-            return $currentPoint = $this->getCanUsePoints()
-                ->sum('number');
+        if (is_null($pointRuleId)){
+            return $this->getCanUsePoints()->sum('number');
+        }
 
         if (is_string($pointRuleId)) {
             $point = PointRules::where('name', $pointRuleId)->first();
@@ -61,7 +61,8 @@ trait HasPoints
         }
 
         $currentPoint = Point::where('user_id', $this->id)
-            ->where('rule_id', $pointRuleId)->first();
+            ->where('rule_id', $pointRuleId)
+            ->first();
 
         if (is_null($currentPoint))
             return 0;
@@ -96,21 +97,31 @@ trait HasPoints
 
                 $this->createEvent($model ,$because ,$body ,false);
 
-                return $this->getCanUsePoints()->map(function ($point) use ($points) {
-                    //如果要扣除的總點數大於這個點數項目，只扣除這個點數總額
-                    $shouldDeductionPoint = $points;
+                foreach ($this->getCanUsePoints() as $point){
+
+                    if ($points == 0)
+                        break;
+
                     $numberOfPoint = $point->number;
 
+                    /**
+                     * 如果要扣除的總點數大於這個點數項目，就扣除這個點數總額
+                     *
+                     * 如果要扣除的點數小於等於這個點數，就只扣除 points
+                     */
                     if ($points > $numberOfPoint) {
                         $shouldDeductionPoint = $numberOfPoint;
+                    }else{
+                        $shouldDeductionPoint = $points;
                     }
 
-                    if ($shouldDeductionPoint == 0)
-                        return;
 
-                    $points -= $numberOfPoint;
+                    $points -= $shouldDeductionPoint;
+
                     $this->usagePointToUser($point->id, $shouldDeductionPoint, $numberOfPoint, $numberOfPoint - $shouldDeductionPoint);
-                });
+                };
+
+                return $this->currentPoint();
             }
         }
 
@@ -152,13 +163,13 @@ trait HasPoints
         $nowDataTime = Carbon::now()->toDateTimeString();
 
         return Point::with('rules')
-            ->select('points.*', 'point_rules.id as ruleId', 'point_rules.name as name', 'point_rules.expiry_at')
-            ->join('point_rules', 'points.rule_id', '=', 'point_rules.id')
-            ->where('point_rules.expiry_at', '<', $nowDataTime)
-            ->orWhere('point_rules.expiry_at', null)
-            ->where('points.user_id', $userId)
-            ->orderBy('point_rules.created_at', 'desc')
-            ->get();
+                    ->select('points.*', 'point_rules.id as ruleId', 'point_rules.name as name', 'point_rules.expiry_at')
+                    ->join('point_rules', 'points.rule_id', '=', 'point_rules.id')
+                    ->where('point_rules.expiry_at', '<', $nowDataTime)
+                    ->orWhere('point_rules.expiry_at', null)
+                    ->where('points.user_id', $userId)
+                    ->orderBy('point_rules.created_at', 'desc')
+                    ->get();
     }
 
     /**

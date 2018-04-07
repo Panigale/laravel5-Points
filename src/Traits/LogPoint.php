@@ -35,7 +35,6 @@ trait LogPoint
     public function logPoint(int $pointId, $point, $beforePoint, $afterPoint)
     {
         return PointActivity::create([
-            'user_id'        => $this->id,
             'before_point'   => $beforePoint,
             'point_event_id' => $this->event->id,
             'point_id'       => $pointId,
@@ -58,7 +57,7 @@ trait LogPoint
         $eventType = $this->getEventType($event ,$isAdd);
 
         $this->event = $model->pointEvent->save([
-            'event_type_id' => $eventType->id,
+            'point_event_type_id' => $eventType->id,
             'body' => $body,
             'user_id' => $this->id,
         ]);
