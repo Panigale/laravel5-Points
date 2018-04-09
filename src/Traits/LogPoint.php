@@ -56,7 +56,7 @@ trait LogPoint
     {
         $eventType = $this->getEventType($event ,$isAdd);
 
-        $this->event = $model->pointEvent->save([
+        $this->event = $model->pointEvent->create([
             'point_event_type_id' => $eventType->id,
             'body' => $body,
             'user_id' => $this->id,
