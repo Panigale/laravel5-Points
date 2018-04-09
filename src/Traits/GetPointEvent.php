@@ -9,6 +9,7 @@ namespace Panigale\Point\Traits;
 
 
 use Panigale\Point\Models\PointEvent;
+use Panigale\Point\Models\PointEventType;
 
 trait GetPointEvent
 {
@@ -17,8 +18,46 @@ trait GetPointEvent
      *
      * @return \Illuminate\Database\Eloquent\Collection|static[]
      */
-    public function getPointEvent()
+    public function getPointEvent($name = null)
     {
-        return PointEvent::with('activities')->where('user_id' ,$this->id)->get();
+
+        $query = PointEvent::with('activities')->where('user_id' ,$this->id);
+
+        if(! $name){
+            $pointType = PointEventType::where('name' ,$name)->first();
+
+            $query->where('point_event_type_id' ,$pointType->id);
+        }
+        
+        return $query->get();
+    }
+
+    /**
+     * get point event by type
+     *
+     * @param bool $isIncrease
+     * @return \Illuminate\Database\Eloquent\Collection|static[]
+     */
+    public function getPointEventByType($isIncrease = true)
+    {
+        $eventType = PointEventType::select('id')
+                                ->where('is_increase' ,$isIncrease)
+                                ->get();
+
+        $query = PointEvent::with('activities')
+                            ->whereIn('point_event_type_id' ,$eventType->toArray())
+                            ->get();
+
+        return $query;
+    }
+
+    /**
+     * get point event type
+     *
+     * @return \Illuminate\Database\Eloquent\Collection|static[]
+     */
+    public function getPointEventType()
+    {
+        return PointEventType::all();
     }
 }
