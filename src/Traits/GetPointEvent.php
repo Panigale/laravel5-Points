@@ -18,15 +18,13 @@ trait GetPointEvent
      *
      * @return \Illuminate\Database\Eloquent\Collection|static[]
      */
-    public function getPointEvent($name = null)
+    public function getPointEvent($typeId = null)
     {
 
         $query = PointEvent::with('activities')->where('user_id' ,$this->id);
 
-        if(! $name){
-            $pointType = PointEventType::where('name' ,$name)->first();
-
-            $query->where('point_event_type_id' ,$pointType->id);
+        if(! $typeId){
+            $query->where('point_event_type_id' ,$typeId);
         }
         
         return $query->get();
@@ -40,15 +38,24 @@ trait GetPointEvent
      */
     public function getPointEventByType($isIncrease = true)
     {
-        $eventType = PointEventType::select('id')
-                                ->where('is_increase' ,$isIncrease)
-                                ->get();
+        $query = PointEventType::select('id');
+
+        $isIncrease ? $query->where('is_increase' ,$isIncrease) : $query->where('is_deduction');
+        $eventType = $query->get();
 
         $query = PointEvent::with('activities')
                             ->whereIn('point_event_type_id' ,$eventType->toArray())
+                            ->orderBy('created_at' ,'desc')
                             ->get();
 
         return $query;
+    }
+
+    public function getPointEventByEventId($eventTypeId)
+    {
+        return PointEvent::where('point_event_id' ,$eventTypeId)
+                         ->orderBy('created_at' ,'desc')
+                        ->get();
     }
 
     /**
