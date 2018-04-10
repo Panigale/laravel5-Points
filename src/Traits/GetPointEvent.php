@@ -23,7 +23,7 @@ trait GetPointEvent
 
         $query = PointEvent::with('activities')->where('user_id' ,$this->id);
 
-        if(! $typeId){
+        if(! is_null($typeId)){
             $query->where('point_event_type_id' ,$typeId);
         }
         
