@@ -31,9 +31,10 @@ trait HasPoints
         collect($points)->map(function ($number, $name) {
             $pointRule = PointRules::findByName($name);
             $pointRuleId = $pointRule->id;
+            $this->ruleId = $pointRuleId;
             $currentPoint = $this->currentPoint($pointRuleId);
             $afterPoint = $currentPoint + $number;
-            $this->addPointToUser($pointRuleId, $number, $currentPoint, $afterPoint);
+            $this->addPointToUser($number, $currentPoint, $afterPoint);
         });
 
         return $this;

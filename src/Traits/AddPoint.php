@@ -46,19 +46,19 @@ trait AddPoint
      * @param $afterPoint
      * @return mixed
      */
-    protected function addPointToUser(int $ruleId, $number, $beforePoint, $afterPoint)
+    protected function addPointToUser($number, $beforePoint, $afterPoint)
     {
-        $this->ruleId = $ruleId;
-        $this->logPoint($ruleId, $number, $beforePoint, $afterPoint);
-
         if($this->pointNotIsset())
-            $this->createPointToUser();
+            $point = $this->createPointToUser();
+       else
+            $point = Point::where('user_id' ,$this->id)
+                         ->where('rule_id' ,$this->ruleId)
+                         ->first();
 
-        return Point::where('user_id' ,$this->id)
-                    ->where('rule_id' ,$ruleId)
-                    ->update([
-                        'number' => $afterPoint
-                    ]);
+        $this->logPoint($point->id, $number, $beforePoint, $afterPoint);
+        $point->number = $afterPoint;
+
+        return $point->save();
     }
 
     /**
@@ -68,7 +68,7 @@ trait AddPoint
      */
     private function createPointToUser($number = null)
     {
-        Point::create([
+        return Point::create([
             'user_id' => $this->id,
             'rule_id' => $this->ruleId,
             'number' => $number

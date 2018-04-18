@@ -25,6 +25,16 @@ class PointEvent extends Model
     }
 
     /**
+     * 事件名稱關聯
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function type()
+    {
+        return $this->belongsTo(PointEventType::class ,'point_event_type_id');
+    }
+
+    /**
      * 這個事件所產生的點數活動
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany

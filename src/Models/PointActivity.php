@@ -26,6 +26,15 @@ class PointActivity extends Model
     }
 
     /**
+     * 這個點數關聯的點數規則
+     *
+     */
+    public function rule()
+    {
+        return $this->point->rules;
+    }
+
+    /**
      * 這個點數活動的點數名稱
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
