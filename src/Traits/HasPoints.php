@@ -163,7 +163,7 @@ trait HasPoints
         $userId = $this->id;
         $nowDataTime = Carbon::now()->toDateTimeString();
 
-        return Point::with('rules')
+        return Point::with('rule')
                     ->select('points.*', 'point_rules.id as ruleId', 'point_rules.name as name', 'point_rules.expiry_at')
                     ->join('point_rules', 'points.rule_id', '=', 'point_rules.id')
                     ->where('point_rules.expiry_at', '<', $nowDataTime)
