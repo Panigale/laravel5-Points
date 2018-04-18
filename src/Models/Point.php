@@ -30,8 +30,8 @@ class Point extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function rules()
+    public function rule()
     {
-        return $this->belongsTo(PointRules::class);
+        return $this->belongsTo(PointRules::class ,'rule_id');
     }
 }
