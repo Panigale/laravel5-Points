@@ -34,4 +34,14 @@ class Point extends Model
     {
         return $this->belongsTo(PointRules::class ,'rule_id');
     }
+
+    /**
+     * point owner
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function owner()
+    {
+        return $this->belongsTo(config('points.table_names.users'),'user_id');
+    }
 }

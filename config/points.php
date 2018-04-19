@@ -26,6 +26,11 @@ return [
         /**
          * point event
          */
-        'point_events' => 'point_events'
+        'point_events' => 'point_events',
+
+        /**
+         * users
+         */
+        'users' => App\User::class
     ]
 ];
