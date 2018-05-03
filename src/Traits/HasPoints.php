@@ -27,13 +27,10 @@ trait HasPoints
      */
     public function addPoints(Model $model ,string $because ,$body ,array $points)
     {
-        $points = collect($points);
-
         DB::transaction(function () use ($model ,$because ,$body ,$points){
-            $totalPoint = $this->getPointTotal($points);
-            $this->createEvent($model, $because, $body ,$totalPoint);
+            $this->createEvent($model ,$because ,$body);
 
-            $points->map(function ($number, $name) {
+            collect($points)->map(function ($number, $name) {
                 $pointRule = PointRules::findByName($name);
                 $pointRuleId = $pointRule->id;
                 $this->ruleId = $pointRuleId;
@@ -68,8 +65,8 @@ trait HasPoints
         }
 
         $currentPoint = Point::where('user_id', $this->id)
-            ->where('rule_id', $pointRuleId)
-            ->first();
+                            ->where('rule_id', $pointRuleId)
+                            ->first();
 
         if (is_null($currentPoint))
             return 0;
@@ -111,7 +108,7 @@ trait HasPoints
 
                     $numberOfPoint = $point->number;
 
-                    if($numberOfPoint != 0) {
+                    if($numberOfPoint > 0) {
 
                         /**
                          * 如果要扣除的總點數大於這個點數項目，就扣除這個點數總額

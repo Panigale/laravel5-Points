@@ -26,7 +26,7 @@ trait GetPointEvent
 
         return $this;
     }
-    
+
     /**
      * get user point event
      *
@@ -34,7 +34,6 @@ trait GetPointEvent
      */
     public function getPointEvent($typeId = null)
     {
-
         $query = $this->queryBuilder();
 
         if(! is_null($typeId)){

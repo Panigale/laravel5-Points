@@ -9,7 +9,6 @@ namespace Panigale\Point\Traits;
 
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
 use Panigale\Point\Exceptions\PointEventNotExist;
 use Panigale\Point\Models\PointActivity;
 use Panigale\Point\Models\PointEvent;
@@ -53,7 +52,7 @@ trait LogPoint
      * @param bool $isAdd
      * @return $this
      */
-    public function createEvent(Model $model,$event ,$body ,$pointNumber ,$isAdd = true)
+    public function createEvent(Model $model,$event ,$body ,$isAdd = true)
     {
         $eventType = $this->getEventType($event ,$isAdd);
 
@@ -61,7 +60,6 @@ trait LogPoint
             'point_event_type_id' => $eventType->id,
             'body' => $body,
             'user_id' => $this->id,
-            'number' => $pointNumber
         ]);
 
         return $this;
@@ -89,18 +87,5 @@ trait LogPoint
             throw PointEventNotExist::create($event);
 
         return $event;
-    }
-
-    /**
-     * 取得點數總和
-     *
-     * @param Collection $point
-     * @return mixed
-     */
-    protected function getPointTotal(Collection $point)
-    {
-        return $point->sum(function($key ,$value){
-            return $value;
-        });
     }
 }
