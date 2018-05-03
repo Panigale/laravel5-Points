@@ -8,11 +8,25 @@
 namespace Panigale\Point\Traits;
 
 
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 use Panigale\Point\Models\PointEvent;
 use Panigale\Point\Models\PointEventType;
 
 trait GetPointEvent
 {
+    /**
+     * @var Model
+     */
+    private $queryBuilder;
+
+    private function queryBuilder()
+    {
+        $this->queryBuilder = PointEvent::with(['type' ,'activities'])->where('user_id' ,$this->id);
+
+        return $this;
+    }
+    
     /**
      * get user point event
      *
@@ -21,7 +35,7 @@ trait GetPointEvent
     public function getPointEvent($typeId = null)
     {
 
-        $query = PointEvent::with(['type' ,'activities'])->where('user_id' ,$this->id);
+        $query = $this->queryBuilder();
 
         if(! is_null($typeId)){
             $query->where('point_event_type_id' ,$typeId);
@@ -66,5 +80,53 @@ trait GetPointEvent
     public function getPointEventType()
     {
         return PointEventType::all();
+    }
+
+    private function setBetweenDate(array $between)
+    {
+        $this->queryBuilder->whereDate('created_at' ,$between);
+
+        return $this;
+    }
+
+    /**
+     * 取出最近 30 天的記錄內容
+     *
+     * @param null $eventTypeId
+     * @return mixed
+     */
+    public function getLast30DayEvent($eventTypeId = null)
+    {
+        $this->getByDays(30);
+
+        if(!is_null($eventTypeId))
+            $this->queryBuilder->where('point_event_type_id' ,$eventTypeId);
+
+        return $this->queryBuilder->get();
+    }
+
+    /**
+     * 取出最近 7 天的記錄內容
+     *
+     * @param null $eventTypeId
+     * @return mixed
+     */
+    public function getLast7DayEvent($eventTypeId = null)
+    {
+        $this->getByDays(7);
+
+        if(!is_null($eventTypeId))
+            $this->queryBuilder->where('point_event_type_id' ,$eventTypeId);
+
+        return $this->queryBuilder->get();
+    }
+
+    public function getByDays(int $days)
+    {
+        $dateStarted = Carbon::today();
+        $dateEnded = $dateStarted->copy()->subDays($days);
+        $this->setBetweenDate([$dateStarted ,$dateEnded]);
+
+        return $this;
     }
 }

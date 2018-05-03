@@ -9,6 +9,7 @@ namespace Panigale\Point\Traits;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Panigale\Point\Exceptions\PointNotEnough;
 use Panigale\Point\Exceptions\PointRuleNotExist;
 use Panigale\Point\Models\Point;
@@ -26,15 +27,20 @@ trait HasPoints
      */
     public function addPoints(Model $model ,string $because ,$body ,array $points)
     {
-        $this->createEvent($model ,$because ,$body);
+        $points = collect($points);
 
-        collect($points)->map(function ($number, $name) {
-            $pointRule = PointRules::findByName($name);
-            $pointRuleId = $pointRule->id;
-            $this->ruleId = $pointRuleId;
-            $currentPoint = $this->currentPoint($pointRuleId);
-            $afterPoint = $currentPoint + $number;
-            $this->addPointToUser($number, $currentPoint, $afterPoint);
+        DB::transaction(function () use ($model ,$because ,$body ,$points){
+            $totalPoint = $this->getPointTotal($points);
+            $this->createEvent($model, $because, $body ,$totalPoint);
+
+            $points->map(function ($number, $name) {
+                $pointRule = PointRules::findByName($name);
+                $pointRuleId = $pointRule->id;
+                $this->ruleId = $pointRuleId;
+                $currentPoint = $this->currentPoint($pointRuleId);
+                $afterPoint = $currentPoint + $number;
+                $this->addPointToUser($number, $currentPoint, $afterPoint);
+            });
         });
 
         return $this;
@@ -105,21 +111,24 @@ trait HasPoints
 
                     $numberOfPoint = $point->number;
 
-                    /**
-                     * 如果要扣除的總點數大於這個點數項目，就扣除這個點數總額
-                     *
-                     * 如果要扣除的點數小於等於這個點數，就只扣除 points
-                     */
-                    if ($points > $numberOfPoint) {
-                        $shouldDeductionPoint = $numberOfPoint;
-                    }else{
-                        $shouldDeductionPoint = $points;
+                    if($numberOfPoint != 0) {
+
+                        /**
+                         * 如果要扣除的總點數大於這個點數項目，就扣除這個點數總額
+                         *
+                         * 如果要扣除的點數小於等於這個點數，就只扣除 points
+                         */
+                        if ($points > $numberOfPoint) {
+                            $shouldDeductionPoint = $numberOfPoint;
+                        } else {
+                            $shouldDeductionPoint = $points;
+                        }
+
+
+                        $points -= $shouldDeductionPoint;
+
+                        $this->usagePointToUser($point->id, $shouldDeductionPoint, $numberOfPoint, $numberOfPoint - $shouldDeductionPoint);
                     }
-
-
-                    $points -= $shouldDeductionPoint;
-
-                    $this->usagePointToUser($point->id, $shouldDeductionPoint, $numberOfPoint, $numberOfPoint - $shouldDeductionPoint);
                 };
 
                 return $this->currentPoint();

@@ -28,6 +28,7 @@ class CreatePointEventsTable extends Migration
             $table->unsignedInteger('point_event_type_id')->index();
             $table->string('body' ,50);
             $table->unsignedInteger('user_id')->index();
+            $table->integer('number');
             $table->morphs('pointable');
             $table->timestamps();
             $table->softDeletes();
