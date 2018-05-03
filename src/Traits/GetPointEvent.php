@@ -39,8 +39,8 @@ trait GetPointEvent
         if(! is_null($typeId)){
             $query->where('point_event_type_id' ,$typeId);
         }
-        
-        return $query->get();
+
+        return $this->queryBuilder->get();
     }
 
     /**
@@ -57,9 +57,9 @@ trait GetPointEvent
         $eventType = $query->get();
 
         $query = PointEvent::with('activities')
-                            ->whereIn('point_event_type_id' ,$eventType->toArray())
-                            ->orderBy('created_at' ,'desc')
-                            ->get();
+            ->whereIn('point_event_type_id' ,$eventType->toArray())
+            ->orderBy('created_at' ,'desc')
+            ->get();
 
         return $query;
     }
@@ -67,8 +67,8 @@ trait GetPointEvent
     public function getPointEventByEventId($eventTypeId)
     {
         return PointEvent::where('point_event_id' ,$eventTypeId)
-                         ->orderBy('created_at' ,'desc')
-                        ->get();
+            ->orderBy('created_at' ,'desc')
+            ->get();
     }
 
     /**
@@ -122,6 +122,7 @@ trait GetPointEvent
 
     public function getByDays(int $days)
     {
+        $this->queryBuilder = $this->queryBuilder();
         $dateStarted = Carbon::today();
         $dateEnded = $dateStarted->copy()->subDays($days);
         $this->setBetweenDate([$dateStarted ,$dateEnded]);
