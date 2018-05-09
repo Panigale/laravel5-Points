@@ -18,11 +18,11 @@ trait GetPointEvent
     /**
      * @var Model
      */
-    private $queryBuilder;
+    private $eventQuery;
 
-    private function queryBuilder()
+    private function buildQuery()
     {
-        $this->queryBuilder = PointEvent::with(['type' ,'activities'])->where('user_id' ,$this->id);
+        $this->eventQuery = PointEvent::with(['type' ,'activities'])->where('user_id' ,$this->id);
 
         return $this;
     }
@@ -34,13 +34,13 @@ trait GetPointEvent
      */
     public function getPointEvent($typeId = null)
     {
-        $query = $this->queryBuilder();
+        $query = $this->eventQuery();
 
         if(! is_null($typeId)){
             $query->where('point_event_type_id' ,$typeId);
         }
 
-        return $this->queryBuilder->get();
+        return $this->eventQuery->get();
     }
 
     /**
@@ -83,7 +83,7 @@ trait GetPointEvent
 
     private function setBetweenDate(array $between)
     {
-        $this->queryBuilder->whereDate('created_at' ,$between);
+        $this->eventQuery->whereBetween('created_at' ,$between);
 
         return $this;
     }
@@ -99,9 +99,9 @@ trait GetPointEvent
         $this->getByDays(30);
 
         if(!is_null($eventTypeId))
-            $this->queryBuilder->where('point_event_type_id' ,$eventTypeId);
+            $this->eventQuery->where('point_event_type_id' ,$eventTypeId);
 
-        return $this->queryBuilder->get();
+        return $this->eventQuery->get();
     }
 
     /**
@@ -115,16 +115,17 @@ trait GetPointEvent
         $this->getByDays(7);
 
         if(!is_null($eventTypeId))
-            $this->queryBuilder->where('point_event_type_id' ,$eventTypeId);
+            $this->eventQuery->where('point_event_type_id' ,$eventTypeId);
 
-        return $this->queryBuilder->get();
+        return $this->eventQuery->get();
     }
 
     public function getByDays(int $days)
     {
-        $this->queryBuilder = $this->queryBuilder();
-        $dateStarted = Carbon::today();
-        $dateEnded = $dateStarted->copy()->subDays($days);
+        $this->buildQuery();
+        $dateEnded = Carbon::today()->endOfDay();
+        $dateStarted = $dateEnded->copy()->subDays($days)->startOfDay();
+
         $this->setBetweenDate([$dateStarted ,$dateEnded]);
 
         return $this;

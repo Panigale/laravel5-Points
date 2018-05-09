@@ -16,6 +16,11 @@ class PointEventType extends Model
 
     protected $guarded = ['id'];
 
+    protected $casts = [
+        'is_increase' => 'boolean',
+        'is_deduction' => 'boolean'
+    ];
+
     /**
      * 擁有的事件
      *
