@@ -20,9 +20,14 @@ trait GetPointEvent
      */
     private $eventQuery;
 
+    private $paginateMode = null;
+
     private function buildQuery()
     {
+        $this->paginateMode = request()->paginate;
+
         $this->eventQuery = PointEvent::with(['type' ,'activities'])->where('user_id' ,$this->id);
+        $this->setDateBetween();
 
         return $this;
     }
@@ -41,7 +46,7 @@ trait GetPointEvent
             $query->where('point_event_type_id' ,$typeId);
         }
 
-        return $this->eventQuery->get();
+        return $this->doQuery();
     }
 
     /**
@@ -57,19 +62,21 @@ trait GetPointEvent
         $isIncrease ? $query->where('is_increase' ,$isIncrease) : $query->where('is_deduction');
         $eventType = $query->get();
 
-        $query = PointEvent::with('activities')
+        $this->eventQuery = PointEvent::with('activities')
             ->whereIn('point_event_type_id' ,$eventType->toArray())
-            ->orderBy('created_at' ,'desc')
-            ->get();
+            ->orderBy('created_at' ,'desc');
 
-        return $query;
+        return $this->doQuery();
     }
 
     public function getPointEventByEventId($eventTypeId)
     {
-        return PointEvent::where('point_event_id' ,$eventTypeId)
-            ->orderBy('created_at' ,'desc')
-            ->get();
+        $this->eventQuery = PointEvent::where('point_event_id' ,$eventTypeId)
+            ->orderBy('created_at' ,'desc');
+
+        $this->setDateBetween();
+
+        return $this->doQuery();
     }
 
     /**
@@ -102,7 +109,7 @@ trait GetPointEvent
         if(!is_null($eventTypeId))
             $this->eventQuery->where('point_event_type_id' ,$eventTypeId);
 
-        return $this->eventQuery->get();
+        return $this->doQuery();
     }
 
     /**
@@ -118,7 +125,36 @@ trait GetPointEvent
         if(!is_null($eventTypeId))
             $this->eventQuery->where('point_event_type_id' ,$eventTypeId);
 
-        return $this->eventQuery->get();
+        return $this->doQuery();
+    }
+
+    public function doQuery()
+    {
+        $perPage = 30;
+
+        return $this->paginateMode == true ? $this->eventQuery->paginate($this->perPage()) : $this->eventQuery->get();
+    }
+
+    protected function perPage()
+    {
+        $defaultPerPage = 30;
+        $perPage = request()->perPage;
+
+        return is_null($perPage) ? $defaultPerPage : $perPage;
+    }
+
+    protected function setDateBetween()
+    {
+        $startDate = request()->startDate;
+        $endDate = request()->endDate;
+        $date = request()->date;
+
+        if(!is_null($date))
+            $this->eventQuery->whereDate('created_at' ,$date);
+        elseif (!is_null($startDate) && !is_null($endDate))
+            $this->setBetweenDate([Carbon::createFromFormat('Y-m-d' ,$startDate)->startOfDay() ,Carbon::createFromFormat('Y-m-d' ,$endDate)->endOfDay()]);
+
+        return $this;
     }
 
     public function getByDays(int $days)
