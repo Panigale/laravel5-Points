@@ -34,7 +34,8 @@ trait GetPointEvent
      */
     public function getPointEvent($typeId = null)
     {
-        $query = $this->eventQuery();
+        $this->buildQuery();
+        $query = $this->eventQuery;
 
         if(! is_null($typeId)){
             $query->where('point_event_type_id' ,$typeId);
