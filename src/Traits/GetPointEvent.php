@@ -130,7 +130,8 @@ trait GetPointEvent
 
     public function doQuery()
     {
-        $perPage = 30;
+        if(isset(request()->date))
+            $this->eventQuery->whereDate('created_at' ,request()->date);
 
         return $this->paginateMode == true ? $this->eventQuery->paginate($this->perPage()) : $this->eventQuery->get();
     }
