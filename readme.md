@@ -90,3 +90,7 @@ $user->enoughToUsePoint(200)
 1. point_rules
 2. points
 3. point_usages
+
+## License
+
+Skeleton is released under the [MIT License](LICENSE).
