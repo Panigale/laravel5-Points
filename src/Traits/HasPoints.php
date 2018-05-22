@@ -28,12 +28,15 @@ trait HasPoints
     public function addPoints(Model $model ,string $because ,$body ,array $points)
     {
         DB::transaction(function () use ($model ,$because ,$body ,$points){
-            $this->createEvent($model ,$because ,$body);
+            $pointCollection = collect($points);
+            $total = $pointCollection->sum();
+            $this->createEvent($model ,$because ,$body ,$total);
 
-            collect($points)->map(function ($number, $name) {
+            $pointCollection->map(function ($number, $name) {
                 $pointRule = PointRules::findByName($name);
                 $pointRuleId = $pointRule->id;
                 $this->ruleId = $pointRuleId;
+
                 $currentPoint = $this->currentPoint($pointRuleId);
                 $afterPoint = $currentPoint + $number;
                 $this->addPointToUser($number, $currentPoint, $afterPoint);
@@ -99,7 +102,7 @@ trait HasPoints
                 throw PointNotEnough::create();
             } else {
 
-                $this->createEvent($model ,$because ,$body ,false);
+                $this->createEvent($model ,$because ,$body ,$points ,false);
 
                 foreach ($this->getCanUsePoints() as $point){
 
@@ -142,12 +145,14 @@ trait HasPoints
             throw PointNotEnough::create();
         }
 
-        $this->createEvent($model ,$because ,$body ,false);
+        $pointCollection = collect($points);
+
+        $this->createEvent($model ,$because ,$body ,$pointCollection->sum() ,false);
 
         $userPoints = $this->getCanUsePoints();
 
         // map 需要扣點的項目
-        collect($points)->map(function ($point, $name) use ($userPoints, $userId) {
+        $pointCollection->map(function ($point, $name) use ($userPoints, $userId) {
 
             //依序取出需要扣點項目的實際數量
             $shouldDeductionPoint = $userPoints->where('name', $name)->first();

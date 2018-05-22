@@ -52,14 +52,19 @@ trait LogPoint
      * @param bool $isAdd
      * @return $this
      */
-    public function createEvent(Model $model,$event ,$body ,$isAdd = true)
+    public function createEvent(Model $model,$event ,$body ,$totalUse ,$isAdd = true)
     {
         $eventType = $this->getEventType($event ,$isAdd);
+        $nowHave = $this->getCanUsePoints()->sum('number');
+        $totalAfter = $isAdd ? $totalUse + $nowHave : $nowHave - $totalUse;
 
         $this->event = $model->pointEvent()->create([
             'point_event_type_id' => $eventType->id,
             'body' => $body,
             'user_id' => $this->id,
+            'total' => $totalUse,
+            'total_before' => $nowHave,
+            'total_after' => $totalAfter
         ]);
 
         return $this;
