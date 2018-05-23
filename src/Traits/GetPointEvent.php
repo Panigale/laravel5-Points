@@ -97,30 +97,14 @@ trait GetPointEvent
     }
 
     /**
-     * 取出最近 30 天的記錄內容
-     *
-     * @param null $eventTypeId
-     * @return mixed
-     */
-    public function getLast30DayEvent($eventTypeId = null)
-    {
-        $this->getByDays(30);
-
-        if(!is_null($eventTypeId))
-            $this->eventQuery->where('point_event_type_id' ,$eventTypeId);
-
-        return $this->doQuery();
-    }
-
-    /**
      * 取出最近 7 天的記錄內容
      *
      * @param null $eventTypeId
      * @return mixed
      */
-    public function getLast7DayEvent($eventTypeId = null)
+    public function getBeforeDay($days = 7,$eventTypeId = null)
     {
-        $this->getByDays(7);
+        $this->getByDays($days);
 
         if(!is_null($eventTypeId))
             $this->eventQuery->where('point_event_type_id' ,$eventTypeId);
