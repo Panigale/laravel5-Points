@@ -63,16 +63,14 @@ trait GetPointEvent
         $eventType = $query->get();
 
         $this->eventQuery = PointEvent::with('activities')
-            ->whereIn('point_event_type_id' ,$eventType->toArray())
-            ->orderBy('created_at' ,'desc');
+            ->whereIn('point_event_type_id' ,$eventType->toArray());
 
         return $this->doQuery();
     }
 
     public function getPointEventByEventId($eventTypeId)
     {
-        $this->eventQuery = PointEvent::where('point_event_id' ,$eventTypeId)
-            ->orderBy('created_at' ,'desc');
+        $this->eventQuery = PointEvent::where('point_event_id' ,$eventTypeId);
 
         $this->setDateBetween();
 
@@ -116,6 +114,11 @@ trait GetPointEvent
     {
         if(isset(request()->date))
             $this->eventQuery->whereDate('created_at' ,request()->date);
+
+        if(isset(request()->orderBy)){
+            $sortBy = isset(request()->sortBy) ? request()->sortBy : 'desc';
+            $this->eventQuery->orderBy(request()->orderBy ,$sortBy);
+        }
 
         return $this->paginateMode == true ? $this->eventQuery->paginate($this->perPage()) : $this->eventQuery->get();
     }
