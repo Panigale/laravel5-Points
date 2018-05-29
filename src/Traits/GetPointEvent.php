@@ -116,8 +116,8 @@ trait GetPointEvent
             $this->eventQuery->whereDate('created_at' ,request()->date);
 
         if(isset(request()->orderBy)){
-            $sortBy = isset(request()->sortBy) ? request()->sortBy : 'desc';
-            $this->eventQuery->orderBy(request()->orderBy ,$sortBy);
+            $sortBy = isset(request()->sortBy) ? snake_case(request()->sortBy) : 'desc';
+            $this->eventQuery->orderBy(snake_case(request()->orderBy) ,$sortBy);
         }
 
         return $this->paginateMode == true ? $this->eventQuery->paginate($this->perPage()) : $this->eventQuery->get();
