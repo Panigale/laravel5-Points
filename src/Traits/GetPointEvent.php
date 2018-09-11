@@ -70,7 +70,7 @@ trait GetPointEvent
 
     public function getPointEventByEventId($eventTypeId)
     {
-        $this->eventQuery = PointEvent::where('point_event_id' ,$eventTypeId);
+        $this->eventQuery = PointEvent::where('point_event_type_id' ,$eventTypeId)->orderBy('created_at' ,'desc');
 
         $this->setDateBetween();
 
