@@ -220,9 +220,10 @@ trait HasPoints
             //返回扣除後剩下幾點
             else
                 return $pointType->number - $point;
-        });
+        })->values()->all();
 
-        return $notEnoughPoint->contains(false, true);
+
+        return in_array(false ,$notEnoughPoint ,true);
     }
 
     /**
