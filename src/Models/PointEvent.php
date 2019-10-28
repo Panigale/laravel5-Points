@@ -10,10 +10,11 @@ namespace Panigale\Point\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Panigale\Point\Traits\HasPoints;
 
 class PointEvent extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes ,HasPoints;
 
     protected $guarded = ['id'];
 
@@ -22,6 +23,11 @@ class PointEvent extends Model
         parent::__construct($attributes);
 
         $this->setTable(config('points.table_names.point_events'));
+    }
+
+    public function owner()
+    {
+        return $this->belongsTo(config('points.table_names.users') ,'user_id');
     }
 
     /**
@@ -52,5 +58,23 @@ class PointEvent extends Model
     public function pointable()
     {
         return $this->morphTo();
+    }
+
+
+    public function refund($because = null)
+    {
+        $activities = $this->activities;
+        $addPoint = [];
+
+        foreach ($activities as $activity){
+
+            $number = $activity->number;
+            $point = $activity->rule()->name;
+            $addPoint[$point] = $number;
+        }
+
+        $owner = $this->owner;
+
+        $owner->addPoints($this->pointable ,'points.refund' ,$because ,$addPoint);
     }
 }

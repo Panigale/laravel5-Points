@@ -31,7 +31,7 @@ class PointActivity extends Model
      */
     public function rule()
     {
-        return $this->point->rules;
+        return $this->point->rule;
     }
 
     /**

@@ -77,9 +77,9 @@ trait LogPoint
      * @param $isAdd
      * @return mixed
      */
-    protected function getEventType($event ,$isAdd)
+    protected function getEventType($eventName ,$isAdd)
     {
-        $eventQuery = PointEventType::where('name' ,$event);
+        $eventQuery = PointEventType::where('name' ,$eventName);
 
         if($isAdd)
             $eventQuery->where('is_increase' ,true);
@@ -89,7 +89,7 @@ trait LogPoint
         $event = $eventQuery->first();
 
         if(is_null($event))
-            throw PointEventNotExist::create($event);
+            throw PointEventNotExist::create($eventName);
 
         return $event;
     }
