@@ -53,7 +53,8 @@ trait AddPoint
        else
             $point = Point::where('user_id' ,$this->id)
                          ->where('rule_id' ,$this->ruleId)
-                         ->first();
+                        ->lockForUpdate()
+                        ->first();
 
         $this->logPoint($point->id, $number, $beforePoint, $afterPoint);
         $point->number = $afterPoint;

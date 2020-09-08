@@ -17,9 +17,10 @@ trait UsagePoint
     {
         $this->logPoint($pointId , $number, $beforePoint, $afterPoint);
 
-        return Point::find($pointId)
-                    ->update([
-                        'number' => $afterPoint
-                    ]);
+        $point = Point::lockForUpdate()->find($pointId);
+        $point->number = $afterPoint;
+        $point->save();
+
+        return $point;
     }
 }
