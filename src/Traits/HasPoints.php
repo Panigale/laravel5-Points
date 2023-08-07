@@ -19,6 +19,8 @@ trait HasPoints
 {
     use LogPoint, GetPointEvent;
 
+    private $chargeWithout = [];
+
     /**
      * 增加點數
      *
@@ -51,7 +53,7 @@ trait HasPoints
      *
      * @return int|mixed
      */
-    public function currentPoint($pointRuleId = null)
+    public function currentPoint($pointRuleId = null) : int
     {
         if (is_null($pointRuleId)){
             return $this->getCanUsePoints()->sum('number');
@@ -172,15 +174,29 @@ trait HasPoints
     public function getCanUsePoints()
     {
         $userId = $this->id;
-        $nowDataTime = Carbon::now()->toDateTimeString();
 
-        return Point::select('points.*', 'point_rules.id as ruleId', 'point_rules.name as name', 'point_rules.expiry_at')
-                    ->join('point_rules', 'points.rule_id', '=', 'point_rules.id')
-                    ->where('points.user_id', $userId)
+        $query = Point::select('points.*', 'point_rules.id as ruleId', 'point_rules.name as name', 'point_rules.expiry_at')
+            ->join('point_rules', 'points.rule_id', '=', 'point_rules.id')
+            ->where('points.user_id', $userId)
 //                    ->where('point_rules.expiry_at', '>=', $nowDataTime)
 //                    ->orWhere('point_rules.expiry_at', null)
-                    ->orderBy('point_rules.created_at', 'desc')
-                    ->get();
+            ->orderBy('point_rules.created_at', 'desc');
+
+        if(count($this->chargeWithout) > 0){
+            $query->whereNotIn('point_rules.name' ,$this->chargeWithout);
+        }
+
+        return $query->get();
+    }
+
+    public function chargeWithOut(...$without)
+    {
+        if(is_array($without[0]))
+            $this->chargeWithout = $without[0];
+
+        $this->chargeWithout = $without;
+
+        return $this;
     }
 
     /**
